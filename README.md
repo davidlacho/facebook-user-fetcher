@@ -41,7 +41,3 @@ To run the application, use the following npx command from the root directory:
 ```bash
 npx ts-node src/main.ts
 ```
-
-## Handling Rate Limits
-
-The application has basic handling for Facebook API rate limits. If a rate limit is hit, it will attempt to retry the request after a delay specified by the API's `retry-after` header. The logic for this behavior is encapsulated in the error handling within the application's codebase.
