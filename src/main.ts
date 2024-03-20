@@ -45,9 +45,9 @@ export const getUserInfo = async (accessToken: string): Promise<FacebookAPIRespo
     }
 
     return response.data;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response) {
-      const errorData: FacebookErrorResponse = error.response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorData = error.response?.data as FacebookErrorResponse;
       throw new FacebookAPIError(errorData.error);
     }
 
@@ -57,7 +57,6 @@ export const getUserInfo = async (accessToken: string): Promise<FacebookAPIRespo
 };
 
 // Main function to fetch user info at regular intervals
-
 let requestInterval = 2000; // Initial request interval
 
 const main = async () => {
@@ -73,13 +72,12 @@ const main = async () => {
       const userInfo = await getUserInfo(accessToken);
       console.log('User Info:', userInfo);
       requestInterval = 2000; // Reset request interval on success
-    } catch (error: any) {
-      // Handle rate limit errors, retry after a delay
+    } catch (error) {
       if (error instanceof FacebookAPIError && [4, 17].includes(error.errorCode)) {
         requestInterval = Math.min(requestInterval * 1.5, 60000); // Exponential backoff with cap of 60 seconds
         console.log(`Rate limit exceeded, retrying in ${requestInterval / 1000} seconds.`);
       } else {
-        console.error('Error fetching user info:', error);
+        console.error('Error fetching user info:', error instanceof Error ? error.message : String(error));
       }
     } finally {
       setTimeout(fetchUserInfo, requestInterval); // Schedule next request
